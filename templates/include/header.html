@@ -1,0 +1,50 @@
+
+
+    {% if request.user.is_authenticated %}
+    <header class="mb30">
+        <nav class="navbar bg-dark border-bottom border-body" data-bs-theme="dark">
+            <div class="container-fluid">              
+             
+              
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                  </li>               
+                 
+                </ul>
+                
+              
+            </div>
+          </nav>
+
+                        
+
+
+          <div class="user">
+           
+                <i class="fas fa-user-circle"></i>
+                <span class="username">{{ user.get_username }} / </span>
+                <span><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></span>
+           
+           
+          </div>   
+
+        
+
+    </header>  
+    {% else %} 
+    <header class="mb-auto">
+      {% load rest_framework %}
+
+
+      <form action="{% url 'login' %}" method="post" novalidate>
+          {% csrf_token %}
+          {% render_form serializer template_pack='rest_framework/vertical' %}
+          <button type="submit" class="btn btn-default">Sign in</button>
+      </form>
+      
+    </header>       
+    {% endif %}
+    
+    
+
