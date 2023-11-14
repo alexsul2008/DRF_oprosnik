@@ -19,11 +19,6 @@ from questions.serializers import *
 from questions.models import Answers, GroupsQuestions, Questions
 
 
-# def index(request):
-#     return render(request, 'registration/login.html')
-
-
-
 
 
 def random_question(array):
