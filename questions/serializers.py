@@ -7,23 +7,21 @@ from questions.models import Answers, GroupsQuestions, Questions
 
 
 
+class GroupsQuestionsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = GroupsQuestions
+        fields = ['url', 'id', 'name', 'groups']
+
+
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
-    # question_group = GroupsQuestionsSerializer(source='groups_question', many=True)
+    question_group = GroupsQuestionsSerializer(source='groups_question', many=True)
 
     class Meta:
         model = Group
-        fields = ['url', 'id', 'name', 'is_boss'] #, 'question_group']
+        fields = ['url', 'id', 'name', 'is_boss', 'question_group']
         # fields = ['url', 'id', 'name', 'is_boss', 'question_groups', 'groups_question']
 
-
-class GroupsQuestionsSerializer(serializers.HyperlinkedModelSerializer):
-
-    group_user = GroupSerializer(source='groups', many=True)
-
-    class Meta:
-        model = GroupsQuestions
-        fields = ['url', 'id', 'name', 'group_user']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
