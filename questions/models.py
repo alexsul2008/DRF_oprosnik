@@ -17,7 +17,7 @@ class GroupsQuestions(models.Model):
     name = models.CharField(u"Наименование группы", max_length=200, null=True, blank=True)
     in_active = models.BooleanField("Активность группы", default=True, help_text="Атрибут указывающий выводить/не выводить группу вопросов при прохождении опроса")
     groups = models.ManyToManyField(
-        Group, verbose_name="Группа отдела", blank=True, related_name="groups"
+        Group, verbose_name="Группа отдела", blank=True, related_name="groups_question"
     )
 
     def __str__(self):
@@ -65,7 +65,7 @@ class Questions(models.Model):
     def image_url(self):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
-    
+
 
     def __str__(self):
         return '{}'.format(self.description)

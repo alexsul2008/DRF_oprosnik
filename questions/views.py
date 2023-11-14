@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 
 from rest_framework.renderers import TemplateHTMLRenderer
 
@@ -15,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 
-from questions.serializers import QuestionsSerializer
+from questions.serializers import *
 from questions.models import Answers, GroupsQuestions, Questions
 
 
@@ -23,7 +23,7 @@ from questions.models import Answers, GroupsQuestions, Questions
 #     return render(request, 'registration/login.html')
 
 
-    
+
 
 
 def random_question(array):
@@ -54,37 +54,78 @@ def usedGroup(user):
 
     return current_user_group, arrayQuestions
 
+class IsSuperOrBossUser(permissions.BasePermission):
+    """
+    Allows access only to super users.
+    """
 
-# class QuestionsAPIView(LoginRequiredMixin, ListAPIView):
-class QuestionsAPIView(viewsets.ModelViewSet):
-# class QuestionsAPIView(APIView):
-    # authentication_classes = [SessionAuthentication, BasicAuthentication]
-    # permission_classes = [IsAuthenticated]
-    serializer_class = QuestionsSerializer
-    queryset = Questions.objects.all()
-    
-    def get_queryset(self):
+    def has_permission(self, request, view):
+        return bool(request.user and (request.user.is_superuser or request.user.groups.all()[0].is_boss))
 
-        print(self.queryset)
-        queryset = self.queryset
 
-        current_group_user = Group.objects.filter(user=self.request.user).values_list('id', flat=True)[0]
-        print(current_group_user)
-        user_list_questions_groups = GroupsQuestions.objects.filter(groups=current_group_user, in_active=True).values_list('id', flat=True)
 
-        # arrayQuestions = Questions.objects.filter(in_active=True, groups_questions__in=list(user_list_questions_groups)) \
-        #     .values_list('id', flat=True).distinct()
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().exclude(is_superuser = True).order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [IsSuperOrBossUser]
 
-        
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.filter(in_active=True, groups_questions__in=list(user_list_questions_groups)).values('id').distinct()
 
-            print(queryset)
-        return queryset
-    
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [IsSuperOrBossUser]
+
+
+class GroupsQuestionsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = GroupsQuestions.objects.all()
+    serializer_class = GroupsQuestionsSerializer
+    permission_classes = [IsSuperOrBossUser]
+
+
+
+
+
+# # class QuestionsAPIView(LoginRequiredMixin, ListAPIView):
+# class QuestionsAPIView(viewsets.ModelViewSet):
+# # class QuestionsAPIView(APIView):
+#     # authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     # permission_classes = [IsAuthenticated]
+#     serializer_class = QuestionsSerializer
+#     queryset = Questions.objects.all()
+
+#     def get_queryset(self):
+
+#         print(self.queryset)
+#         print(self.request.user.is_superuser)
+#         queryset = self.queryset
+
+#         if(not self.request.user.is_superuser):
+#             current_group_user = Group.objects.filter(user=self.request.user).values_list('id', flat=True)[0]
+#             print(current_group_user)
+#             user_list_questions_groups = GroupsQuestions.objects.filter(groups=current_group_user, in_active=True).values_list('id', flat=True)
+
+#             # arrayQuestions = Questions.objects.filter(in_active=True, groups_questions__in=list(user_list_questions_groups)) \
+#             #     .values_list('id', flat=True).distinct()
+
+
+#             if isinstance(queryset, QuerySet):
+#                 queryset = queryset.filter(in_active=True, groups_questions__in=list(user_list_questions_groups)).values('id').distinct()
+
+#                 print(queryset)
+#         return queryset
+
 
     # def get(self, request, *args, **kwargs):
-        
+
     #     current_group_user = Group.objects.filter(user=request.user).values_list('id', flat=True)[0]
     #     user_list_questions_groups = GroupsQuestions.objects.filter(groups=current_group_user, in_active=True).values_list('id', flat=True)
     #     lsts = Questions.objects.filter(in_active=True, groups_questions__in=list(user_list_questions_groups)).values('id').distinct()
@@ -112,7 +153,7 @@ class QuestionsAPIView(viewsets.ModelViewSet):
 #     # def get(self, request):
 #     #     lst = Questions.objects.all().values()
 #         # return Response({'questions': QuestionsSerializer(lst, many=True).data})
-    
+
 #     def post(self, request):
 
 #         serialaizer = QuestionsSerializer(data=request.data)
@@ -132,17 +173,17 @@ class QuestionsAPIView(viewsets.ModelViewSet):
 #         pk = kwargs.get('pk', None)
 #         if not pk:
 #             return Response({'error': 'Метод PUT не определен'})
-        
+
 #         try:
 #             isinstance = Questions.objects.get(pk=pk)
 #         except:
 #             return Response({'error': 'Объект не найден'})
-        
+
 #         serialaizer = QuestionsSerializer(data=request.data, instance=isinstance)
 #         serialaizer.is_valid(raise_exception=True)
 #         serialaizer.save()
 #         return Response({'question': serialaizer.data})
-        
+
 
 
 

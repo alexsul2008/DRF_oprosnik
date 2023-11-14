@@ -3,13 +3,58 @@ from rest_framework import serializers
 
 from django.contrib.auth.models import Group, User
 
-from questions.models import Answers, Questions
+from questions.models import Answers, GroupsQuestions, Questions
 
 
-class GroupSerializer(serializers.ModelSerializer):
+
+class GroupsQuestionsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model= Group
-        fields = ('id','name')
+        model = GroupsQuestions
+        fields = ['url', 'id', 'name', 'groups']
+
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
+
+    question_group = GroupsQuestionsSerializer(source='groups_question', many=True)
+
+    class Meta:
+        model = Group
+        fields = ['url', 'id', 'name', 'is_boss', 'question_group']
+        # fields = ['url', 'id', 'name', 'is_boss', 'question_groups', 'groups_question']
+
+# class GroupSerializer(serializers.HyperlinkedModelSerializer):
+#     class Meta:
+#         model = Group
+#         fields = ['url', 'name']
+#         extra_kwargs = {
+#             'url': {'view_name': 'groups', 'lookup_field': 'name'},
+#             'users': {'lookup_field': 'username'}
+#         }
+
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+    full_name = serializers.CharField(source='get_full_name')
+    # user_group = GroupSerializer(source='groups', many=True)
+
+    class Meta:
+        model = User
+        fields = ['url', 'first_name', 'last_name', 'full_name', 'username', 'email', 'is_active', 'groups'] #, 'user_group']
+        depth = 2
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class AnswersListSerializer(serializers.ModelSerializer):
@@ -20,7 +65,7 @@ class AnswersListSerializer(serializers.ModelSerializer):
 
 
 
-class QuestionsSerializer(serializers.ModelSerializer):   
+class QuestionsSerializer(serializers.ModelSerializer):
 
     # answer_questions = AnswersListSerializer(read_only=True, many=True)
     # groups_questions = serializers.SlugRelatedField(slug_field="name", read_only=True, many=True)
