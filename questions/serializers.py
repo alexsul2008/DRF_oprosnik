@@ -34,6 +34,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'first_name', 'last_name', 'full_name', 'username', 'email', 'is_active', 'groups'] #, 'user_group']
         depth = 2
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.is_superuser:
+            representation['admin'] = True
+        return representation
+
 
 
 

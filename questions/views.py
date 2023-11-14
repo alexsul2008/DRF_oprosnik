@@ -7,6 +7,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets, permissions
+from rest_framework.permissions import BasePermission
 
 from rest_framework.renderers import TemplateHTMLRenderer
 
@@ -49,7 +50,7 @@ def usedGroup(user):
 
     return current_user_group, arrayQuestions
 
-class IsSuperOrBossUser(permissions.BasePermission):
+class IsSuperOrBossUser(BasePermission):
     """
     Allows access only to super users.
     """
@@ -63,9 +64,9 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = User.objects.all().exclude(is_superuser = True).order_by('-date_joined')
+    queryset = User.objects.all().exclude(is_superuser = True).order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [IsSuperOrBossUser]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -74,7 +75,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsSuperOrBossUser]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class GroupsQuestionsViewSet(viewsets.ModelViewSet):
@@ -83,7 +84,7 @@ class GroupsQuestionsViewSet(viewsets.ModelViewSet):
     """
     queryset = GroupsQuestions.objects.all()
     serializer_class = GroupsQuestionsSerializer
-    permission_classes = [IsSuperOrBossUser]
+    permission_classes = [permissions.IsAdminUser]
 
 
 

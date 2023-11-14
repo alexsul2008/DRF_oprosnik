@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('', include('questions.urls')),
     path('admin/', admin.site.urls),
-    path('accounts/', include('rest_framework.urls')),
+    # path('accounts/', include('rest_framework.urls')),
     # path('login/', views.LoginView.as_view(template_name='registration/login.html'), name='login'),
 
     # path('accounts/', include('django.contrib.auth.urls')),
